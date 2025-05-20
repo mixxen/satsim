@@ -4,17 +4,38 @@ from .backend import xp
 
 
 class Cartesian2:
-    """ A 2D Cartesian point. """
+    """A 2D Cartesian point backed by a :mod:`numpy`/``cupy`` array."""
 
     def __init__(self, x=0.0, y=0.0):
-        """ Constructor.
+        """Constructor.
 
-        Args:
-            x: `float`, The X component. default: 0
-            y: `float`, The Y component. default: 0
+        Parameters
+        ----------
+        x : float
+            The X component.
+        y : float
+            The Y component.
         """
-        self.x = x
-        self.y = y
+        self.v = xp.asarray([x, y], dtype=float)
+
+    # ------------------------------------------------------------------
+    # Properties mapping to the underlying array
+    # ------------------------------------------------------------------
+    @property
+    def x(self):
+        return self.v[0]
+
+    @x.setter
+    def x(self, value):
+        self.v[0] = value
+
+    @property
+    def y(self):
+        return self.v[1]
+
+    @y.setter
+    def y(self, value):
+        self.v[1] = value
 
     def __str__(self):
         return str([self.x, self.y])
@@ -29,8 +50,8 @@ class Cartesian2:
     # Convenience helpers using numpy/cupy
     # ------------------------------------------------------------------
     def to_array(self):
-        """Return a 2-element array representation using the configured backend."""
-        return xp.asarray([self.x, self.y], dtype=float)
+        """Return the underlying array without copying."""
+        return self.v
 
     @classmethod
     def from_array(cls, arr):
@@ -524,7 +545,7 @@ class Cartesian2:
         Returns:
             A `boolean`, `True` if equal, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and right is not None and
                 left.x == right.x and left.y == right.y)
@@ -544,7 +565,7 @@ class Cartesian2:
         Returns:
             A `boolean`, `True` if they pass an absolute or relative tolerance test, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and
                 right is not None and
