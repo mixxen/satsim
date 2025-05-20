@@ -1,5 +1,7 @@
 import math
 
+from .backend import xp
+
 
 class Cartesian3:
     """ A 3D Cartesian point. """
@@ -26,6 +28,45 @@ class Cartesian3:
                 self.y == other.y and
                 self.z == other.z)
         )
+
+    # ------------------------------------------------------------------
+    # Convenience helpers using numpy/cupy
+    # ------------------------------------------------------------------
+    def to_array(self):
+        return xp.asarray([self.x, self.y, self.z], dtype=float)
+
+    @classmethod
+    def from_array(cls, arr):
+        return cls(arr[0], arr[1], arr[2])
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+
+    def __add__(self, other):
+        if isinstance(other, Cartesian3):
+            return Cartesian3(self.x + other.x, self.y + other.y, self.z + other.z)
+        arr = self.to_array() + other
+        return Cartesian3.from_array(arr)
+
+    def __sub__(self, other):
+        if isinstance(other, Cartesian3):
+            return Cartesian3(self.x - other.x, self.y - other.y, self.z - other.z)
+        arr = self.to_array() - other
+        return Cartesian3.from_array(arr)
+
+    def __mul__(self, scalar):
+        arr = self.to_array() * scalar
+        return Cartesian3.from_array(arr)
+
+    def __truediv__(self, scalar):
+        arr = self.to_array() / scalar
+        return Cartesian3.from_array(arr)
+
+    def __neg__(self):
+        arr = -self.to_array()
+        return Cartesian3.from_array(arr)
 
     @staticmethod
     def fromSpherical(spherical, result=None):

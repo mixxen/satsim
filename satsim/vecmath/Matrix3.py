@@ -1,6 +1,7 @@
 import math
 from satsim.vecmath import Cartesian3
 from satsim.math.const import EPSILON15, EPSILON20
+from .backend import xp
 
 
 class Matrix3:
@@ -33,9 +34,17 @@ class Matrix3:
             column1Row2: `float`, The value for column 1, row 2.
             column2Row2: `float`, The value for column 2, row 2.
         """
-        self.m = [column0Row0, column0Row1, column0Row2,
-                  column1Row0, column1Row1, column1Row2,
-                  column2Row0, column2Row1, column2Row2]
+        self.m = xp.asarray([
+            column0Row0,
+            column0Row1,
+            column0Row2,
+            column1Row0,
+            column1Row1,
+            column1Row2,
+            column2Row0,
+            column2Row1,
+            column2Row2,
+        ], dtype=float)
 
     def __getitem__(self, key):
         return self.m[key]
@@ -457,7 +466,7 @@ class Matrix3:
             A `list`, The modified Array parameter or a new Array instance if one was not provided.
         """
         if result is None:
-            return [
+            return xp.asarray([
                 matrix[0],
                 matrix[1],
                 matrix[2],
@@ -467,7 +476,7 @@ class Matrix3:
                 matrix[6],
                 matrix[7],
                 matrix[8],
-            ]
+            ], dtype=float)
 
         result[0] = matrix[0]
         result[1] = matrix[1]

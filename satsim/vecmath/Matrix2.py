@@ -1,5 +1,6 @@
 import math
 from satsim.vecmath import Cartesian2
+from .backend import xp
 
 
 class Matrix2:
@@ -18,7 +19,9 @@ class Matrix2:
             column0Row1: `float`, The value for column 0, row 1.
             column1Row1: `float`, The value for column 1, row 1.
         """
-        self.m = [column0Row0, column0Row1, column1Row0, column1Row1]
+        self.m = xp.asarray(
+            [column0Row0, column0Row1, column1Row0, column1Row1], dtype=float
+        )
 
     def __getitem__(self, key):
         return self.m[key]
@@ -201,7 +204,7 @@ class Matrix2:
             A `list`, The modified Array parameter or a new Array instance if one was not provided.
         """
         if result is None:
-            return [matrix[0], matrix[1], matrix[2], matrix[3]]
+            return xp.asarray([matrix[0], matrix[1], matrix[2], matrix[3]], dtype=float)
 
         result[0] = matrix[0]
         result[1] = matrix[1]

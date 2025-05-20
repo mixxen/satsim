@@ -1,5 +1,7 @@
 import math
 
+from .backend import xp
+
 
 class Cartesian4:
     """ A 4D Cartesian point. """
@@ -29,6 +31,56 @@ class Cartesian4:
                 self.z == other.z and
                 self.w == other.w)
         )
+
+    # ------------------------------------------------------------------
+    # Convenience helpers using numpy/cupy
+    # ------------------------------------------------------------------
+    def to_array(self):
+        return xp.asarray([self.x, self.y, self.z, self.w], dtype=float)
+
+    @classmethod
+    def from_array(cls, arr):
+        return cls(arr[0], arr[1], arr[2], arr[3])
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+        yield self.w
+
+    def __add__(self, other):
+        if isinstance(other, Cartesian4):
+            return Cartesian4(
+                self.x + other.x,
+                self.y + other.y,
+                self.z + other.z,
+                self.w + other.w,
+            )
+        arr = self.to_array() + other
+        return Cartesian4.from_array(arr)
+
+    def __sub__(self, other):
+        if isinstance(other, Cartesian4):
+            return Cartesian4(
+                self.x - other.x,
+                self.y - other.y,
+                self.z - other.z,
+                self.w - other.w,
+            )
+        arr = self.to_array() - other
+        return Cartesian4.from_array(arr)
+
+    def __mul__(self, scalar):
+        arr = self.to_array() * scalar
+        return Cartesian4.from_array(arr)
+
+    def __truediv__(self, scalar):
+        arr = self.to_array() / scalar
+        return Cartesian4.from_array(arr)
+
+    def __neg__(self):
+        arr = -self.to_array()
+        return Cartesian4.from_array(arr)
 
     @staticmethod
     def fromElements(x, y, z, w, result=None):
