@@ -1,18 +1,41 @@
 import math
 
+from .backend import xp
+
 
 class Cartesian2:
-    """ A 2D Cartesian point. """
+    """A 2D Cartesian point backed by a :mod:`numpy`/``cupy`` array."""
 
     def __init__(self, x=0.0, y=0.0):
-        """ Constructor.
+        """Constructor.
 
-        Args:
-            x: `float`, The X component. default: 0
-            y: `float`, The Y component. default: 0
+        Parameters
+        ----------
+        x : float
+            The X component.
+        y : float
+            The Y component.
         """
-        self.x = x
-        self.y = y
+        self.v = xp.asarray([x, y], dtype=float)
+
+    # ------------------------------------------------------------------
+    # Properties mapping to the underlying array
+    # ------------------------------------------------------------------
+    @property
+    def x(self):
+        return self.v[0]
+
+    @x.setter
+    def x(self, value):
+        self.v[0] = value
+
+    @property
+    def y(self):
+        return self.v[1]
+
+    @y.setter
+    def y(self, value):
+        self.v[1] = value
 
     def __str__(self):
         return str([self.x, self.y])
@@ -22,6 +45,46 @@ class Cartesian2:
             self is other or
             (self.x == other.x and self.y == other.y)
         )
+
+    # ------------------------------------------------------------------
+    # Convenience helpers using numpy/cupy
+    # ------------------------------------------------------------------
+    def to_array(self):
+        """Return the underlying array without copying."""
+        return self.v
+
+    @classmethod
+    def from_array(cls, arr):
+        """Create a :class:`Cartesian2` from a numpy/cupy array."""
+        return cls(arr[0], arr[1])
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+
+    def __add__(self, other):
+        if isinstance(other, Cartesian2):
+            return Cartesian2(self.x + other.x, self.y + other.y)
+        arr = self.to_array() + other
+        return Cartesian2.from_array(arr)
+
+    def __sub__(self, other):
+        if isinstance(other, Cartesian2):
+            return Cartesian2(self.x - other.x, self.y - other.y)
+        arr = self.to_array() - other
+        return Cartesian2.from_array(arr)
+
+    def __mul__(self, scalar):
+        arr = self.to_array() * scalar
+        return Cartesian2.from_array(arr)
+
+    def __truediv__(self, scalar):
+        arr = self.to_array() / scalar
+        return Cartesian2.from_array(arr)
+
+    def __neg__(self):
+        arr = -self.to_array()
+        return Cartesian2.from_array(arr)
 
     @staticmethod
     def fromElements(x, y, result=None):
@@ -197,7 +260,8 @@ class Cartesian2:
         Returns:
             A `float`, The squared magnitude.
         """
-        return cartesian.x * cartesian.x + cartesian.y * cartesian.y
+        arr = cartesian.to_array()
+        return xp.dot(arr, arr)
 
     @staticmethod
     def magnitude(cartesian):
@@ -209,7 +273,8 @@ class Cartesian2:
         Returns:
             A `float`, The magnitude.
         """
-        return math.sqrt(Cartesian2.magnitudeSquared(cartesian))
+        arr = cartesian.to_array()
+        return xp.linalg.norm(arr)
 
     @staticmethod
     def distance(left, right):
@@ -222,8 +287,8 @@ class Cartesian2:
         Returns:
             A `float`, The distance between two points.
         """
-        Cartesian2.subtract(left, right, _distanceScratch)
-        return Cartesian2.magnitude(_distanceScratch)
+        diff = left.to_array() - right.to_array()
+        return xp.linalg.norm(diff)
 
     @staticmethod
     def distanceSquared(left, right):
@@ -237,8 +302,8 @@ class Cartesian2:
         Returns:
             A `float`, The distance between two points.
         """
-        Cartesian2.subtract(left, right, _distanceScratch)
-        return Cartesian2.magnitudeSquared(_distanceScratch)
+        diff = left.to_array() - right.to_array()
+        return xp.dot(diff, diff)
 
     @staticmethod
     def normalize(cartesian, result):
@@ -251,9 +316,10 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        magnitude = Cartesian2.magnitude(cartesian)
-        result.x = cartesian.x / magnitude
-        result.y = cartesian.y / magnitude
+        arr = cartesian.to_array()
+        magnitude = xp.linalg.norm(arr)
+        result.x = arr[0] / magnitude
+        result.y = arr[1] / magnitude
         return result
 
     @staticmethod
@@ -267,7 +333,7 @@ class Cartesian2:
         Returns:
             A `float`, The dot product.
         """
-        return left.x * right.x + left.y * right.y
+        return xp.dot(left.to_array(), right.to_array())
 
     @staticmethod
     def cross(left, right):
@@ -294,8 +360,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = left.x * right.x
-        result.y = left.y * right.y
+        arr = left.to_array() * right.to_array()
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -310,8 +377,9 @@ class Cartesian2:
         Returns:
             A `float`, The modified result parameter.
         """
-        result.x = left.x / right.x
-        result.y = left.y / right.y
+        arr = left.to_array() / right.to_array()
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -326,8 +394,9 @@ class Cartesian2:
         Returns:
             A `float`, The modified result parameter.
         """
-        result.x = left.x + right.x
-        result.y = left.y + right.y
+        arr = left.to_array() + right.to_array()
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -342,8 +411,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = left.x - right.x
-        result.y = left.y - right.y
+        arr = left.to_array() - right.to_array()
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -358,8 +428,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = cartesian.x * scalar
-        result.y = cartesian.y * scalar
+        arr = cartesian.to_array() * scalar
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -374,8 +445,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = cartesian.x / scalar
-        result.y = cartesian.y / scalar
+        arr = cartesian.to_array() / scalar
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -389,8 +461,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = -cartesian.x
-        result.y = -cartesian.y
+        arr = -cartesian.to_array()
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -404,8 +477,9 @@ class Cartesian2:
         Returns:
             A `Cartesian2`, The modified result parameter.
         """
-        result.x = abs(cartesian.x)
-        result.y = abs(cartesian.y)
+        arr = xp.abs(cartesian.to_array())
+        result.x = arr[0]
+        result.y = arr[1]
         return result
 
     @staticmethod
@@ -471,7 +545,7 @@ class Cartesian2:
         Returns:
             A `boolean`, `True` if equal, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and right is not None and
                 left.x == right.x and left.y == right.y)
@@ -491,7 +565,7 @@ class Cartesian2:
         Returns:
             A `boolean`, `True` if they pass an absolute or relative tolerance test, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and
                 right is not None and

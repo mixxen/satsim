@@ -1,22 +1,55 @@
 import math
 
+from .backend import xp
+
 
 class Cartesian4:
-    """ A 4D Cartesian point. """
+    """A 4D Cartesian point backed by a ``numpy``/``cupy`` array."""
 
     def __init__(self, x=0.0, y=0.0, z=0.0, w=0.0):
-        """ Constructor.
+        """Constructor.
 
-        Args:
-            x: `float`, The X component. default: 0
-            y: `float`, The Y component. default: 0
-            z: `float`, The Z component. default: 0
-            w: `float`, The W component. default: 0
+        Parameters
+        ----------
+        x, y, z, w : float
+            Cartesian components.
         """
-        self.x = x
-        self.y = y
-        self.z = z
-        self.w = w
+        self.v = xp.asarray([x, y, z, w], dtype=float)
+
+    # ------------------------------------------------------------------
+    # Properties mapping to the underlying array
+    # ------------------------------------------------------------------
+    @property
+    def x(self):
+        return self.v[0]
+
+    @x.setter
+    def x(self, value):
+        self.v[0] = value
+
+    @property
+    def y(self):
+        return self.v[1]
+
+    @y.setter
+    def y(self, value):
+        self.v[1] = value
+
+    @property
+    def z(self):
+        return self.v[2]
+
+    @z.setter
+    def z(self, value):
+        self.v[2] = value
+
+    @property
+    def w(self):
+        return self.v[3]
+
+    @w.setter
+    def w(self, value):
+        self.v[3] = value
 
     def __str__(self):
         return str([self.x, self.y, self.z, self.w])
@@ -29,6 +62,57 @@ class Cartesian4:
                 self.z == other.z and
                 self.w == other.w)
         )
+
+    # ------------------------------------------------------------------
+    # Convenience helpers using numpy/cupy
+    # ------------------------------------------------------------------
+    def to_array(self):
+        """Return the underlying array without copying."""
+        return self.v
+
+    @classmethod
+    def from_array(cls, arr):
+        return cls(arr[0], arr[1], arr[2], arr[3])
+
+    def __iter__(self):
+        yield self.x
+        yield self.y
+        yield self.z
+        yield self.w
+
+    def __add__(self, other):
+        if isinstance(other, Cartesian4):
+            return Cartesian4(
+                self.x + other.x,
+                self.y + other.y,
+                self.z + other.z,
+                self.w + other.w,
+            )
+        arr = self.to_array() + other
+        return Cartesian4.from_array(arr)
+
+    def __sub__(self, other):
+        if isinstance(other, Cartesian4):
+            return Cartesian4(
+                self.x - other.x,
+                self.y - other.y,
+                self.z - other.z,
+                self.w - other.w,
+            )
+        arr = self.to_array() - other
+        return Cartesian4.from_array(arr)
+
+    def __mul__(self, scalar):
+        arr = self.to_array() * scalar
+        return Cartesian4.from_array(arr)
+
+    def __truediv__(self, scalar):
+        arr = self.to_array() / scalar
+        return Cartesian4.from_array(arr)
+
+    def __neg__(self):
+        arr = -self.to_array()
+        return Cartesian4.from_array(arr)
 
     @staticmethod
     def fromElements(x, y, z, w, result=None):
@@ -473,7 +557,7 @@ class Cartesian4:
         Returns:
             A `boolean`, `True` if equal, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and right is not None and
                 left.x == right.x and left.y == right.y and left.z == right.z and left.w == right.w)
@@ -493,7 +577,7 @@ class Cartesian4:
         Returns:
             A `boolean`, `True` if they pass an absolute or relative tolerance test, `False` otherwise.
         """
-        return (
+        return bool(
             left is right or
             (left is not None and
                 right is not None and

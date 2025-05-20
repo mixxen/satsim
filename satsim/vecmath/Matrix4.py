@@ -2,6 +2,7 @@ import math
 
 from satsim.vecmath import Cartesian3, Matrix3, Cartesian4
 from satsim.math.const import EPSILON7, EPSILON21
+from .backend import xp
 
 
 class Matrix4:
@@ -28,10 +29,24 @@ class Matrix4:
                  column1Row3=0.0,
                  column2Row3=0.0,
                  column3Row3=0.0):
-        self.m = [column0Row0, column0Row1, column0Row2, column0Row3,
-                  column1Row0, column1Row1, column1Row2, column1Row3,
-                  column2Row0, column2Row1, column2Row2, column2Row3,
-                  column3Row0, column3Row1, column3Row2, column3Row3,]
+        self.m = xp.asarray([
+            column0Row0,
+            column0Row1,
+            column0Row2,
+            column0Row3,
+            column1Row0,
+            column1Row1,
+            column1Row2,
+            column1Row3,
+            column2Row0,
+            column2Row1,
+            column2Row2,
+            column2Row3,
+            column3Row0,
+            column3Row1,
+            column3Row2,
+            column3Row3,
+        ], dtype=float)
         """ Constructor.
 
         Args:
@@ -869,7 +884,7 @@ class Matrix4:
             A `list`, The modified Array parameter or a new Array instance if one was not provided.
         """
         if result is None:
-            return [
+            return xp.asarray([
                 matrix[0],
                 matrix[1],
                 matrix[2],
@@ -886,7 +901,7 @@ class Matrix4:
                 matrix[13],
                 matrix[14],
                 matrix[15],
-            ]
+            ], dtype=float)
 
         result[0] = matrix[0]
         result[1] = matrix[1]
