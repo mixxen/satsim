@@ -138,12 +138,12 @@ class Cartesian4:
         return result
 
     @staticmethod
-    def fromArray(array, startingIndex=0, result=None):
+    def from_array(array, starting_index=0, result=None):
         """ Creates a Cartesian4 from four consecutive elements in an array.
 
         Args:
             array: `list`, The array whose four consecutive elements correspond to the x y, z, and w components, respectively.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Cartesian4`, The object onto which to store the result.
 
         Returns:
@@ -152,10 +152,10 @@ class Cartesian4:
         if result is None:
             result = Cartesian4()
 
-        result.x = array[startingIndex]
-        result.y = array[startingIndex + 1]
-        result.z = array[startingIndex + 2]
-        result.w = array[startingIndex + 3]
+        result.x = array[starting_index]
+        result.y = array[starting_index + 1]
+        result.z = array[starting_index + 2]
+        result.w = array[starting_index + 3]
         return result
 
     @staticmethod
@@ -621,3 +621,7 @@ class Cartesian4:
 _lerpScratch = Cartesian4()
 _mostOrthogonalAxisScratch = Cartesian4()
 _distanceScratch = Cartesian4()
+
+# Backwards compatibility aliases
+fromArray = Cartesian4.from_array
+

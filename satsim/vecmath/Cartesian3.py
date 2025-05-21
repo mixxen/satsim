@@ -118,7 +118,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def fromElements(x, y, z, result=None):
+    def from_elements(x, y, z, result=None):
         """ Creates a Cartesian3 instance from x and y coordinates.
 
         Args:
@@ -139,12 +139,12 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def fromArray(array, startingIndex=0, result=None):
+    def from_array(array, starting_index=0, result=None):
         """ Creates a Cartesian3 from three consecutive elements in an array.
 
         Args:
             array: `list`, The array whose three consecutive elements correspond to the x, y, and z components, respectively.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Cartesian3`, The object onto which to store the result.
 
         Returns:
@@ -153,9 +153,9 @@ class Cartesian3:
         if result is None:
             result = Cartesian3()
 
-        result.x = array[startingIndex]
-        result.y = array[startingIndex + 1]
-        result.z = array[startingIndex + 2]
+        result.x = array[starting_index]
+        result.y = array[starting_index + 1]
+        result.z = array[starting_index + 2]
         return result
 
     @staticmethod
@@ -181,7 +181,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def maximumComponent(cartesian):
+    def maximum_component(cartesian):
         """ Computes the value of the maximum component for the supplied Cartesian.
 
         Args:
@@ -193,7 +193,7 @@ class Cartesian3:
         return max(cartesian.x, cartesian.y, cartesian.z)
 
     @staticmethod
-    def minimumComponent(cartesian):
+    def minimum_component(cartesian):
         """ Computes the value of the minimum component for the supplied Cartesian.
 
         Args:
@@ -205,7 +205,7 @@ class Cartesian3:
         return min(cartesian.x, cartesian.y, cartesian.z)
 
     @staticmethod
-    def minimumByComponent(first, second, result):
+    def minimum_by_component(first, second, result):
         """ Computes the value of the minimum component for the supplied Cartesian.
 
         Args:
@@ -222,7 +222,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def maximumByComponent(first, second, result):
+    def maximum_by_component(first, second, result):
         """ Computes the value of the maximum component for the supplied Cartesian.
 
         Args:
@@ -276,7 +276,7 @@ class Cartesian3:
         return Cartesian3.clone(cartesian)
 
     @staticmethod
-    def magnitudeSquared(cartesian):
+    def magnitude_squared(cartesian):
         """ Computes the provided Cartesian's squared magnitude.
 
         Args:
@@ -297,7 +297,7 @@ class Cartesian3:
         Returns:
             A `float`, The magnitude.
         """
-        return math.sqrt(Cartesian3.magnitudeSquared(cartesian))
+        return math.sqrt(Cartesian3.magnitude_squared(cartesian))
 
     @staticmethod
     def distance(left, right):
@@ -314,7 +314,7 @@ class Cartesian3:
         return Cartesian3.magnitude(_distanceScratch)
 
     @staticmethod
-    def distanceSquared(left, right):
+    def distance_squared(left, right):
         """ Computes the squared distance between two points.  Comparing squared distances
         using this function is more efficient than comparing distances.
 
@@ -326,7 +326,7 @@ class Cartesian3:
             A `float`, The distance between two points.
         """
         Cartesian3.subtract(left, right, _distanceScratch)
-        return Cartesian3.magnitudeSquared(_distanceScratch)
+        return Cartesian3.magnitude_squared(_distanceScratch)
 
     @staticmethod
     def normalize(cartesian, result):
@@ -386,7 +386,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def multiplyComponents(left, right, result):
+    def multiply_components(left, right, result):
         """ Computes the componentwise product of two Cartesians.
 
         Args:
@@ -403,7 +403,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def divideComponents(left, right, result):
+    def divide_components(left, right, result):
         """ Computes the component wise quotient of two Cartesians.
 
         Args:
@@ -454,7 +454,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def multiplyByScalar(cartesian, scalar, result):
+    def multiply_by_scalar(cartesian, scalar, result):
         """ Multiplies the provided Cartesian componentwise by the provided scalar.
 
         Args:
@@ -471,7 +471,7 @@ class Cartesian3:
         return result
 
     @staticmethod
-    def divideByScalar(cartesian, scalar, result):
+    def divide_by_scalar(cartesian, scalar, result):
         """ Divides the provided Cartesian componentwise by the provided scalar.
 
         Args:
@@ -532,12 +532,12 @@ class Cartesian3:
         Returns:
             A `Cartesian3`, The modified result parameter.
         """
-        Cartesian3.multiplyByScalar(end, t, _lerpScratch)
-        result = Cartesian3.multiplyByScalar(start, 1.0 - t, result)
+        Cartesian3.multiply_by_scalar(end, t, _lerpScratch)
+        result = Cartesian3.multiply_by_scalar(start, 1.0 - t, result)
         return Cartesian3.add(_lerpScratch, result, result)
 
     @staticmethod
-    def angleBetween(left, right):
+    def angle_between(left, right):
         """ Returns the angle, in radians, between the provided Cartesians.
 
         Args:
@@ -560,7 +560,7 @@ class Cartesian3:
         return math.atan2(sine, cosine)
 
     @staticmethod
-    def mostOrthogonalAxis(cartesian, result):
+    def most_orthogonal_axis(cartesian, result):
         """ Returns the angle, in radians, between the provided Cartesians.
 
         Args:
@@ -598,7 +598,7 @@ class Cartesian3:
             A `Cartesian3`, The modified result parameter.
         """
         scalar = Cartesian3.dot(a, b) / Cartesian3.dot(b, b)
-        return Cartesian3.multiplyByScalar(b, scalar, result)
+        return Cartesian3.multiply_by_scalar(b, scalar, result)
 
     @staticmethod
     def equals(left, right):
@@ -619,15 +619,15 @@ class Cartesian3:
         )
 
     @staticmethod
-    def equalsEpsilon(left, right, relativeEpsilon=0.0, absoluteEpsilon=0.0):
+    def equals_epsilon(left, right, relative_epsilon=0.0, absolute_epsilon=0.0):
         """ Compares the provided Cartesians componentwise and return `True`
         if they pass an absolute or relative tolerance test, `False` otherwise.
 
         Args:
             left, `Cartesian3`, The first Cartesian.
             right: `Cartesian3`, The second Cartesian.
-            relativeEpsilon, `float`, The relative epsilon tolerance to use for equality testing. default=0
-            absoluteEpsilon, `float`, The absolute epsilon tolerance to use for equality testing. default=0
+            relative_epsilon, `float`, The relative epsilon tolerance to use for equality testing. default=0
+            absolute_epsilon, `float`, The absolute epsilon tolerance to use for equality testing. default=0
 
         Returns:
             A `boolean`, `True` if they pass an absolute or relative tolerance test, `False` otherwise.
@@ -636,9 +636,9 @@ class Cartesian3:
             left is right or
             (left is not None and
                 right is not None and
-                math.isclose(left.x, right.x, rel_tol=relativeEpsilon, abs_tol=absoluteEpsilon) and
-                math.isclose(left.y, right.y, rel_tol=relativeEpsilon, abs_tol=absoluteEpsilon) and
-                math.isclose(left.z, right.z, rel_tol=relativeEpsilon, abs_tol=absoluteEpsilon))
+                math.isclose(left.x, right.x, rel_tol=relative_epsilon, abs_tol=absolute_epsilon) and
+                math.isclose(left.y, right.y, rel_tol=relative_epsilon, abs_tol=absolute_epsilon) and
+                math.isclose(left.z, right.z, rel_tol=relative_epsilon, abs_tol=absolute_epsilon))
         )
 
     @staticmethod
@@ -690,3 +690,21 @@ _angleBetweenScratch = Cartesian3()
 _angleBetweenScratch2 = Cartesian3()
 _mostOrthogonalAxisScratch = Cartesian3()
 _distanceScratch = Cartesian3()
+
+# Backwards compatibility aliases
+fromElements = Cartesian3.from_elements
+fromArray = Cartesian3.from_array
+maximumComponent = Cartesian3.maximum_component
+minimumComponent = Cartesian3.minimum_component
+minimumByComponent = Cartesian3.minimum_by_component
+maximumByComponent = Cartesian3.maximum_by_component
+magnitudeSquared = Cartesian3.magnitude_squared
+distanceSquared = Cartesian3.distance_squared
+multiplyComponents = Cartesian3.multiply_components
+divideComponents = Cartesian3.divide_components
+multiplyByScalar = Cartesian3.multiply_by_scalar
+divideByScalar = Cartesian3.divide_by_scalar
+angleBetween = Cartesian3.angle_between
+mostOrthogonalAxis = Cartesian3.most_orthogonal_axis
+equalsEpsilon = Cartesian3.equals_epsilon
+
