@@ -82,7 +82,7 @@ class Matrix3:
 
         Args:
             array: `list`, The array whose 9 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix3`, The object onto which to store the result.
 
         Returns:
@@ -166,7 +166,7 @@ class Matrix3:
         return result
 
     @staticmethod
-    def fromArray(array, startingIndex=0, result=None):
+    def from_array(array, starting_index=0, result=None):
         """ Creates a Matrix3 from 9 consecutive elements in an array.
 
         Args:
@@ -180,15 +180,15 @@ class Matrix3:
         if result is None:
             result = Matrix3()
 
-        result[0] = array[startingIndex]
-        result[1] = array[startingIndex + 1]
-        result[2] = array[startingIndex + 2]
-        result[3] = array[startingIndex + 3]
-        result[4] = array[startingIndex + 4]
-        result[5] = array[startingIndex + 5]
-        result[6] = array[startingIndex + 6]
-        result[7] = array[startingIndex + 7]
-        result[8] = array[startingIndex + 8]
+        result[0] = array[starting_index]
+        result[1] = array[starting_index + 1]
+        result[2] = array[starting_index + 2]
+        result[3] = array[starting_index + 3]
+        result[4] = array[starting_index + 4]
+        result[5] = array[starting_index + 5]
+        result[6] = array[starting_index + 6]
+        result[7] = array[starting_index + 7]
+        result[8] = array[starting_index + 8]
         return result
 
     @staticmethod
@@ -839,7 +839,7 @@ class Matrix3:
         return result
 
     @staticmethod
-    def multiplyByScalar(matrix, scalar, result):
+    def multiply_by_scalar(matrix, scalar, result):
         """ Computes the product of a matrix and a scalar.
 
         Args:
@@ -1186,7 +1186,7 @@ class Matrix3:
         result[8] = m11 * m22 - m12 * m21
 
         scale = 1.0 / determinant
-        return Matrix3.multiplyByScalar(result, scale, result)
+        return Matrix3.multiply_by_scalar(result, scale, result)
 
     @staticmethod
     def inverseTranspose(matrix, result):
@@ -1294,3 +1294,8 @@ _jMatrixTranspose = Matrix3()
 
 _rowVal = [1, 0, 0]
 _colVal = [2, 2, 1]
+
+# Backwards compatibility aliases
+fromArray = Matrix3.from_array
+multiplyByScalar = Matrix3.multiply_by_scalar
+

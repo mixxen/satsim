@@ -111,7 +111,7 @@ class Matrix4:
 
         Args:
             array: `list`, The array whose 16 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix4`, The object onto which to store the result.
 
         Returns:
@@ -158,12 +158,12 @@ class Matrix4:
         return result
 
     @staticmethod
-    def fromArray(array, startingIndex=0, result=None):
+    def from_array(array, starting_index=0, result=None):
         """ Creates a Matrix4 from 16 consecutive elements in an array.
 
         Args:
             array: `list`, The array whose 16 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix4`, The object onto which to store the result.
 
         Returns:
@@ -172,22 +172,22 @@ class Matrix4:
         if result is None:
             result = Matrix4()
 
-        result[0] = array[startingIndex]
-        result[1] = array[startingIndex + 1]
-        result[2] = array[startingIndex + 2]
-        result[3] = array[startingIndex + 3]
-        result[4] = array[startingIndex + 4]
-        result[5] = array[startingIndex + 5]
-        result[6] = array[startingIndex + 6]
-        result[7] = array[startingIndex + 7]
-        result[8] = array[startingIndex + 8]
-        result[9] = array[startingIndex + 9]
-        result[10] = array[startingIndex + 10]
-        result[11] = array[startingIndex + 11]
-        result[12] = array[startingIndex + 12]
-        result[13] = array[startingIndex + 13]
-        result[14] = array[startingIndex + 14]
-        result[15] = array[startingIndex + 15]
+        result[0] = array[starting_index]
+        result[1] = array[starting_index + 1]
+        result[2] = array[starting_index + 2]
+        result[3] = array[starting_index + 3]
+        result[4] = array[starting_index + 4]
+        result[5] = array[starting_index + 5]
+        result[6] = array[starting_index + 6]
+        result[7] = array[starting_index + 7]
+        result[8] = array[starting_index + 8]
+        result[9] = array[starting_index + 9]
+        result[10] = array[starting_index + 10]
+        result[11] = array[starting_index + 11]
+        result[12] = array[starting_index + 12]
+        result[13] = array[starting_index + 13]
+        result[14] = array[starting_index + 14]
+        result[15] = array[starting_index + 15]
         return result
 
     @staticmethod
@@ -197,7 +197,7 @@ class Matrix4:
 
         Args:
             values: `list`, The column-major order array.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix4`, The object onto which to store the result.
 
         Returns:
@@ -212,7 +212,7 @@ class Matrix4:
 
         Args:
             values: `list`, The row-major order array.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix4`, The object onto which to store the result.
 
         Returns:
@@ -1715,7 +1715,7 @@ class Matrix4:
         return result
 
     @staticmethod
-    def multiplyByScalar(matrix, scalar, result):
+    def multiply_by_scalar(matrix, scalar, result):
         """ Computes the product of a matrix and a scalar.
 
         Args:
@@ -2175,3 +2175,8 @@ _scratchMatrix3Zero = Matrix3()
 _scratchBottomRow = Cartesian4()
 _scratchExpectedBottomRow = Cartesian4(0.0, 0.0, 0.0, 1.0)
 _scratchTransposeMatrix = Matrix4()
+
+# Backwards compatibility aliases
+fromArray = Matrix4.from_array
+multiplyByScalar = Matrix4.multiply_by_scalar
+

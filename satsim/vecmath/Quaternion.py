@@ -330,7 +330,7 @@ class Quaternion:
         """
         magnitudeSquared = Quaternion.magnitudeSquared(quaternion)
         result = Quaternion.conjugate(quaternion, result)
-        return Quaternion.multiplyByScalar(result, 1.0 / magnitudeSquared, result)
+        return Quaternion.multiply_by_scalar(result, 1.0 / magnitudeSquared, result)
 
     @staticmethod
     def add(left, right, result):
@@ -434,7 +434,7 @@ class Quaternion:
         return result
 
     @staticmethod
-    def multiplyByScalar(quaternion, scalar, result):
+    def multiply_by_scalar(quaternion, scalar, result):
         """ Multiplies the provided Cartesian componentwise by the provided scalar.
 
         Args:
@@ -519,8 +519,8 @@ class Quaternion:
         Returns:
             A `Quaternion`, The modified result parameter.
         """
-        Quaternion.multiplyByScalar(end, t, _lerpScratch)
-        result = Quaternion.multiplyByScalar(start, 1.0 - t, result)
+        Quaternion.multiply_by_scalar(end, t, _lerpScratch)
+        result = Quaternion.multiply_by_scalar(start, 1.0 - t, result)
         return Quaternion.add(_lerpScratch, result, result)
 
     @staticmethod
@@ -547,10 +547,10 @@ class Quaternion:
             return Quaternion.lerp(start, r, t, result)
 
         theta = math.acos(dot)
-        Quaternion.multiplyByScalar(start, math.sin((1 - t) * theta), _slerpScaledP)
-        Quaternion.multiplyByScalar(r, math.sin(t * theta), _slerpScaledR)
+        Quaternion.multiply_by_scalar(start, math.sin((1 - t) * theta), _slerpScaledP)
+        Quaternion.multiply_by_scalar(r, math.sin(t * theta), _slerpScaledR)
         result = Quaternion.add(_slerpScaledP, _slerpScaledR, result)
-        return Quaternion.multiplyByScalar(result, 1.0 / math.sin(theta), result)
+        return Quaternion.multiply_by_scalar(result, 1.0 / math.sin(theta), result)
 
     @staticmethod
     def log(quaternion, result):
@@ -569,7 +569,7 @@ class Quaternion:
         if theta != 0.0:
             thetaOverSinTheta = theta / math.sin(theta)
 
-        return Cartesian3.multiplyByScalar(quaternion, thetaOverSinTheta, result)
+        return Cartesian3.multiply_by_scalar(quaternion, thetaOverSinTheta, result)
 
     @staticmethod
     def exp(cartesian, result):
@@ -616,7 +616,7 @@ class Quaternion:
         cart1 = Quaternion.log(_squadScratchQuaternion1, _squadScratchCartesian1)
 
         Cartesian3.add(cart0, cart1, cart0)
-        Cartesian3.multiplyByScalar(cart0, 0.25, cart0)
+        Cartesian3.multiply_by_scalar(cart0, 0.25, cart0)
         Cartesian3.negate(cart0, cart0)
         Quaternion.exp(cart0, _squadScratchQuaternion0)
 
@@ -676,12 +676,12 @@ class Quaternion:
         cT = sign * t * (1.0 + bT[0] * (1.0 + bT[1] * (1.0 + bT[2] * (1.0 + bT[3] * (1.0 + bT[4] * (1.0 + bT[5] * (1.0 + bT[6] * (1.0 + bT[7]))))))))
         cD = d * (1.0 + bD[0] * (1.0 + bD[1] * (1.0 + bD[2] * (1.0 + bD[3] * (1.0 + bD[4] * (1.0 + bD[5] * (1.0 + bD[6] * (1.0 + bD[7]))))))))
 
-        temp = Quaternion.multiplyByScalar(
+        temp = Quaternion.multiply_by_scalar(
             start,
             cD,
             _fastSlerpScratchQuaternion
         )
-        Quaternion.multiplyByScalar(end, cT, result)
+        Quaternion.multiply_by_scalar(end, cT, result)
         return Quaternion.add(temp, result, result)
 
     @staticmethod
@@ -782,3 +782,7 @@ def _init_uv():
 bT = [0.0] * 8
 bD = [0.0] * 8
 u, v = _init_uv()
+
+# Backwards compatibility aliases
+multiplyByScalar = Quaternion.multiply_by_scalar
+

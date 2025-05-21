@@ -48,12 +48,12 @@ class Matrix2:
         )
 
     @staticmethod
-    def fromArray(array, startingIndex=0, result=None):
+    def from_array(array, starting_index=0, result=None):
         """ Creates a Matrix2 from 4 consecutive elements in an array.
 
         Args:
             array: `list`, The array whose 4 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
-            startingIndex: `int`, The offset into the array of the first element, which corresponds to the x component.
+            starting_index: `int`, The offset into the array of the first element, which corresponds to the x component.
             result: `Matrix2`, The object onto which to store the result.
 
         Returns:
@@ -62,10 +62,10 @@ class Matrix2:
         if result is None:
             result = Matrix2()
 
-        result[0] = array[startingIndex]
-        result[1] = array[startingIndex + 1]
-        result[2] = array[startingIndex + 2]
-        result[3] = array[startingIndex + 3]
+        result[0] = array[starting_index]
+        result[1] = array[starting_index + 1]
+        result[2] = array[starting_index + 2]
+        result[3] = array[starting_index + 3]
         return result
 
     @staticmethod
@@ -483,7 +483,7 @@ class Matrix2:
         return result
 
     @staticmethod
-    def multiplyByVector(matrix, cartesian, result):
+    def multiply_by_vector(matrix, cartesian, result):
         """ Computes the product of a matrix and a column vector.
 
         Args:
@@ -502,7 +502,7 @@ class Matrix2:
         return result
 
     @staticmethod
-    def multiplyByScalar(matrix, scalar, result):
+    def multiply_by_scalar(matrix, scalar, result):
         """ Computes the product of a matrix and a column vector.
 
         Args:
@@ -520,7 +520,7 @@ class Matrix2:
         return result
 
     @staticmethod
-    def multiplyByScale(matrix, scale, result):
+    def multiply_by_scale(matrix, scale, result):
         """ Computes the product of a matrix times a (non-uniform) scale, as if the scale were a scale matrix.
 
         Args:
@@ -539,7 +539,7 @@ class Matrix2:
         return result
 
     @staticmethod
-    def multiplyByUniformScale(matrix, scale, result):
+    def multiply_by_uniform_scale(matrix, scale, result):
         """ Computes the product of a matrix times a uniform scale, as if the scale were a scale matrix.
 
         Args:
@@ -659,3 +659,11 @@ _scaleScratch2 = Cartesian2()
 _scaleScratch3 = Cartesian2()
 _scaleScratch4 = Cartesian2()
 _scaleScratch5 = Cartesian2()
+
+# Backwards compatibility aliases
+fromArray = Matrix2.from_array
+multiplyByVector = Matrix2.multiply_by_vector
+multiplyByScalar = Matrix2.multiply_by_scalar
+multiplyByScale = Matrix2.multiply_by_scale
+multiplyByUniformScale = Matrix2.multiply_by_uniform_scale
+
