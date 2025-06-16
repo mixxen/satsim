@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 
-def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
+def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn):
     """Generate analytical observations for a frame using precomputed RA/Dec.
 
     Args:
@@ -14,6 +14,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
             mid-exposure position of the object.
         astrometrics: `dict`, frame astrometric parameters.
         bg_level: `float`, background noise level per pixel.
+        dc_level: `float`, dark current level per pixel.
         rn: `float`, read noise standard deviation in photo-electrons.
 
     Notes:
@@ -71,23 +72,23 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
             continue
 
         peak_signal = max(bins.values()) * eod
-        snr = float(peak_signal / math.sqrt(peak_signal + bg_level + rn * rn))
+        snr = float(peak_signal / math.sqrt(peak_signal + bg_level + dc_level + rn * rn))
         if snr < snr_threshold:
             continue
 
-        ra_true = ob['ra_obs']
-        dec_true = ob['dec_obs']
-        ra_m = ra_true + np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_true))
-        dec_m = dec_true + np.random.normal(scale=axis_error * y_ifov)
+        ra_obs = ob['ra_obs']
+        dec_obs = ob['dec_obs']
+        ra_m = ra_obs + np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_obs))
+        dec_m = dec_obs + np.random.normal(scale=axis_error * y_ifov)
 
         obs_list.append({
             'obTime': astrometrics['time'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'ra': float(ra_m),
             'declination': float(dec_m),
             'snrEst': float(snr),
-            'senlat': astrometrics.get('lat', 0),
-            'senlon': astrometrics.get('lon', 0),
-            'senalt': astrometrics.get('alt', 0),
+            'senlat': float(astrometrics.get('lat', 0)),
+            'senlon': float(astrometrics.get('lon', 0)),
+            'senalt': float(astrometrics.get('alt', 0)),
             'expDuration': float(ssp['fpa']['time']['exposure']),
             'createdBy': 'satsim',
             'type': 'OPTICAL'
@@ -108,9 +109,9 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
             'ra': float(ra_m),
             'declination': float(dec_m),
             'snrEst': 0.0,
-            'senlat': astrometrics.get('lat', 0),
-            'senlon': astrometrics.get('lon', 0),
-            'senalt': astrometrics.get('alt', 0),
+            'senlat': float(astrometrics.get('lat', 0)),
+            'senlon': float(astrometrics.get('lon', 0)),
+            'senalt': float(astrometrics.get('alt', 0)),
             'expDuration': float(ssp['fpa']['time']['exposure']),
             'createdBy': 'satsim',
             'type': 'OPTICAL'

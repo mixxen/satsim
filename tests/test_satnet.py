@@ -22,8 +22,8 @@ def test_annotation():
         'pe': 100,
         'ra_obs': 1.0,
         'dec_obs': -1.0,
-        'ra_true': 0.5,
-        'dec_true': -0.5,
+        'ra': 0.5,
+        'dec': -0.5,
     }
 
     a = init_annotation('./', 0, h, w, 2., 3.)
@@ -44,8 +44,8 @@ def test_annotation():
 
     assert c['ra_obs'] == 1.0
     assert c['dec_obs'] == -1.0
-    assert c['ra_true'] == 0.5
-    assert c['dec_true'] == -0.5
+    assert c['ra'] == 0.5
+    assert c['dec'] == -0.5
 
     assert(c['seg_id'] == -1)
 

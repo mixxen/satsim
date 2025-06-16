@@ -30,6 +30,7 @@ from satsim.geometry.csvsc import query_by_los as csvsc_query_by_los
 from satsim.geometry.sgp4 import create_sgp4
 from satsim.geometry.ephemeris import create_ephemeris_object
 from satsim.geometry.astrometric import create_topocentric, gen_track, get_los, get_los_azel, GreatCircle
+from skyfield.toposlib import _ltude
 from satsim.geometry.photometric import model_to_mv
 from satsim.geometry.twobody import create_twobody
 from satsim.geometry.observation import create_observation
@@ -540,9 +541,11 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
             # note: stars will track horizontally where zenith is pointed up. focal plane rotation is simulated with the `rotation` variable
             star_rot = ssp['geometry']['site']['gimbal']['rotation']
             track_mode = ssp['geometry']['site']['track']['mode']
-            astrometrics['lat'] = ssp['geometry']['site']['lat']
-            astrometrics['lon'] = ssp['geometry']['site']['lon']
-            astrometrics['alt'] = ssp['geometry']['site'].get('alt', 0)
+            lat = ssp['geometry']['site']['lat']
+            lon = ssp['geometry']['site']['lon']
+            astrometrics['lat'] = float(_ltude(lat, 'latitude', 'N', 'S')) if isinstance(lat, str) else float(lat)
+            astrometrics['lon'] = float(_ltude(lon, 'longitude', 'E', 'W')) if isinstance(lon, str) else float(lon)
+            astrometrics['alt'] = float(ssp['geometry']['site'].get('alt', 0))
             astrometrics['track_mode'] = _parse_track_mode(track_mode, 0, num_frames)
             observer = create_topocentric(astrometrics['lat'], astrometrics['lon'], astrometrics['alt'])
 
@@ -687,12 +690,14 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                             opp['rcc'] = opp['rcc'] - cp['width_offset']
 
                     bg_val = float(tf.reduce_mean(bg_tf).numpy()) if hasattr(bg_tf, 'numpy') else float(np.mean(bg_tf))
+                    dc_val = float(tf.reduce_mean(dc_tf).numpy()) if hasattr(dc_tf, 'numpy') else float(np.mean(dc_tf))
                     rn_val = float(tf.reduce_mean(rn_tf).numpy()) if hasattr(rn_tf, 'numpy') else float(np.mean(rn_tf))
                     obs_list = analytic_obs.generate(
                         ssp,
                         obs_os_pix,
                         astrometrics,
                         bg_val,
+                        dc_val,
                         rn_val,
                     )
                     analytical.save(output_dir, frame_num, obs_list)
@@ -919,6 +924,7 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
 
             if ssp['sim'].get('analytical_obs', False):
                 bg_val = float(tf.reduce_mean(crop_bg_tf).numpy()) if hasattr(crop_bg_tf, 'numpy') else float(np.mean(crop_bg_tf))
+                dc_val = float(tf.reduce_mean(crop_dc_tf).numpy()) if hasattr(crop_dc_tf, 'numpy') else float(np.mean(crop_dc_tf))
                 rn_val = float(tf.reduce_mean(crop_rn_tf).numpy()) if hasattr(crop_rn_tf, 'numpy') else float(np.mean(crop_rn_tf))
 
                 obs_list = analytic_obs.generate(
@@ -926,6 +932,7 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                     obs_os_pix,
                     astrometrics,
                     bg_val,
+                    dc_val,
                     rn_val,
                 )
                 analytical.save(output_dir, frame_num, obs_list)
@@ -1204,8 +1211,8 @@ def _gen_objects(ssp, render_mode,
         if ra_mid is not None and dec_mid is not None:
             entry['ra_obs'] = ra_mid
             entry['dec_obs'] = dec_mid
-            entry['ra_true'] = ra_true
-            entry['dec_true'] = dec_true
+            entry['ra'] = ra_true
+            entry['dec'] = dec_true
 
         obs_os_pix.append(entry)
 

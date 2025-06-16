@@ -58,6 +58,8 @@ def test_analytical_observations():
     assert len(data) <= ssp['fpa']['observation']['max_false'] + 1
     assert 'snrEst' in data[0]
     assert '+00:00' not in data[0]['obTime']
+    assert isinstance(data[0]['senlat'], float)
+    assert isinstance(data[0]['senlon'], float)
 
 
 def test_analytical_observations_threshold():
@@ -150,7 +152,7 @@ def test_truth_annotation_ra_dec():
     with open(os.path.join(anno_dir, files[0])) as f:
         data = json.load(f)
 
-    found = any('ra_true' in ob and 'ra_obs' in ob
+    found = any('ra' in ob and 'ra_obs' in ob
                 for ob in data['data']['objects']
                 if ob['class_name'] == 'Satellite')
     assert found
