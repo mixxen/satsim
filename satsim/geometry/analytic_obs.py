@@ -33,6 +33,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
 
     height = ssp['fpa'].get('crop', {}).get('height', ssp['fpa']['height'])
     width = ssp['fpa'].get('crop', {}).get('width', ssp['fpa']['width'])
+    pad = int(ssp['sim'].get('padding', 0))
 
     y_ifov = astrometrics.get('y_ifov',
                               ssp['fpa']['y_fov'] / ssp['fpa']['height'])
@@ -63,7 +64,8 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
         c_real = cc // s_osf
         bins = {}
         for r_pix, c_pix, val in zip(r_real, c_real, pp):
-            if 0 <= r_pix < height and 0 <= c_pix < width:
+            if (pad <= r_pix < height - pad and
+                    pad <= c_pix < width - pad):
                 bins[(r_pix, c_pix)] = bins.get((r_pix, c_pix), 0.0) + val
 
         if not bins:

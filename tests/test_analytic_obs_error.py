@@ -83,3 +83,40 @@ def test_object_out_of_fov():
 
     obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0)
     assert obs == []
+
+
+def test_object_excluded_near_padding():
+    ssp = {
+        'fpa': {
+            'width': 10,
+            'height': 10,
+            'x_fov': 1.0,
+            'y_fov': 1.0,
+            'time': {'exposure': 1.0},
+            'psf': {'eod': 1.0},
+            'observation': {
+                'pixel_error': 0.0,
+                'snr_threshold': 0.0,
+                'false_alarm_rate': 0.0,
+                'max_false': 0,
+            },
+        },
+        'sim': {'spacial_osf': 1, 'padding': 2},
+    }
+
+    astrometrics = {
+        'time': datetime.datetime.utcnow(),
+        'x_ifov': ssp['fpa']['x_fov'] / ssp['fpa']['width'],
+        'y_ifov': ssp['fpa']['y_fov'] / ssp['fpa']['height'],
+    }
+
+    obs_os_pix = [{
+        'rr': [1],
+        'cc': [1],
+        'pp': [100],
+        'ra_obs': 0.0,
+        'dec_obs': 0.0,
+    }]
+
+    obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0)
+    assert obs == []
