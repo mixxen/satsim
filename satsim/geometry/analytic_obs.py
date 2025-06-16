@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 
-def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn):
+def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn, en):
     """Generate analytical observations for a frame using precomputed RA/Dec.
 
     Args:
@@ -16,6 +16,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn):
         bg_level: `float`, background noise level per pixel.
         dc_level: `float`, dark current level per pixel.
         rn: `float`, read noise standard deviation in photo-electrons.
+        en: `float`, electronic noise standard deviation in photo-electrons.
 
     Notes:
         ``pixel_error`` is interpreted as the standard deviation of the
@@ -26,7 +27,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn):
     Returns:
         `list` of observations in the JSON output format.
     """
-    obs_cfg = ssp['fpa'].get('observation', {})
+    obs_cfg = ssp['fpa'].get('detection', {})
     pixel_error = obs_cfg.get('pixel_error', 0.0)
     snr_threshold = obs_cfg.get('snr_threshold', 0.0)
     false_alarm_rate = obs_cfg.get('false_alarm_rate', 0.0)
@@ -72,7 +73,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, dc_level, rn):
             continue
 
         peak_signal = max(bins.values()) * eod
-        snr = float(peak_signal / math.sqrt(peak_signal + bg_level + dc_level + rn * rn))
+        snr = float(peak_signal / math.sqrt(peak_signal + bg_level + dc_level + rn * rn + en * en))
         if snr < snr_threshold:
             continue
 

@@ -73,8 +73,8 @@
                 }
             }
         },
-        "observation": {
-            "description": "Parameters for synthetic observations.",
+        "detection": {
+            "description": "Parameters for synthetic detections.",
             "type": "object",
             "properties": {
                 "snr_threshold": {

@@ -378,18 +378,18 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
     if 'flip_left_right' not in ssp['fpa']:
         ssp['fpa']['flip_left_right'] = False
 
-    if 'observation' not in ssp['fpa']:
-        ssp['fpa']['observation'] = {
+    if 'detection' not in ssp['fpa']:
+        ssp['fpa']['detection'] = {
             'snr_threshold': 0.0,
             'pixel_error': 0.0,
             'false_alarm_rate': 0.0,
             'max_false': 10,
         }
     else:
-        ssp['fpa']['observation'].setdefault('snr_threshold', 0.0)
-        ssp['fpa']['observation'].setdefault('pixel_error', 0.0)
-        ssp['fpa']['observation'].setdefault('false_alarm_rate', 0.0)
-        ssp['fpa']['observation'].setdefault('max_false', 10)
+        ssp['fpa']['detection'].setdefault('snr_threshold', 0.0)
+        ssp['fpa']['detection'].setdefault('pixel_error', 0.0)
+        ssp['fpa']['detection'].setdefault('false_alarm_rate', 0.0)
+        ssp['fpa']['detection'].setdefault('max_false', 10)
 
     star_mode = ssp['geometry']['stars']['mode']
 
@@ -691,7 +691,8 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
 
                     bg_val = float(tf.reduce_mean(bg_tf).numpy()) if hasattr(bg_tf, 'numpy') else float(np.mean(bg_tf))
                     dc_val = float(tf.reduce_mean(dc_tf).numpy()) if hasattr(dc_tf, 'numpy') else float(np.mean(dc_tf))
-                    rn_val = float(tf.reduce_mean(rn_tf).numpy()) if hasattr(rn_tf, 'numpy') else float(np.mean(rn_tf))
+                    rn_val = float(rn)
+                    en_val = float(en)
                     obs_list = analytic_obs.generate(
                         ssp,
                         obs_os_pix,
@@ -699,6 +700,7 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                         bg_val,
                         dc_val,
                         rn_val,
+                        en_val,
                     )
                     analytical.save(output_dir, frame_num, obs_list)
                 if with_meta:
@@ -925,7 +927,8 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
             if ssp['sim'].get('analytical_obs', False):
                 bg_val = float(tf.reduce_mean(crop_bg_tf).numpy()) if hasattr(crop_bg_tf, 'numpy') else float(np.mean(crop_bg_tf))
                 dc_val = float(tf.reduce_mean(crop_dc_tf).numpy()) if hasattr(crop_dc_tf, 'numpy') else float(np.mean(crop_dc_tf))
-                rn_val = float(tf.reduce_mean(crop_rn_tf).numpy()) if hasattr(crop_rn_tf, 'numpy') else float(np.mean(crop_rn_tf))
+                rn_val = float(rn)
+                en_val = float(en)
 
                 obs_list = analytic_obs.generate(
                     ssp,
@@ -934,6 +937,7 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                     bg_val,
                     dc_val,
                     rn_val,
+                    en_val,
                 )
                 analytical.save(output_dir, frame_num, obs_list)
 

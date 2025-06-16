@@ -12,7 +12,7 @@ def test_pixel_error_distribution():
             'y_fov': 1.0,
             'time': {'exposure': 1.0},
             'psf': {'eod': 1.0},
-            'observation': {
+            'detection': {
                 'pixel_error': 1.0,
                 'snr_threshold': 0.0,
                 'false_alarm_rate': 0.0,
@@ -38,7 +38,7 @@ def test_pixel_error_distribution():
 
     deltas = []
     for _ in range(2000):
-        obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0)
+        obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0, 0.0)
         delta_ra_pix = (obs[0]['ra']) * np.cos(0.0) / astrometrics['x_ifov']
         delta_dec_pix = obs[0]['declination'] / astrometrics['y_ifov']
         deltas.append([delta_ra_pix, delta_dec_pix])
@@ -57,7 +57,7 @@ def test_object_out_of_fov():
             'y_fov': 1.0,
             'time': {'exposure': 1.0},
             'psf': {'eod': 1.0},
-            'observation': {
+            'detection': {
                 'pixel_error': 0.0,
                 'snr_threshold': 0.0,
                 'false_alarm_rate': 0.0,
@@ -81,7 +81,7 @@ def test_object_out_of_fov():
         'dec_obs': 0.0,
     }]
 
-    obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0)
+    obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0, 0.0)
     assert obs == []
 
 
@@ -94,7 +94,7 @@ def test_object_in_fov_with_padding():
             'y_fov': 1.0,
             'time': {'exposure': 1.0},
             'psf': {'eod': 1.0},
-            'observation': {
+            'detection': {
                 'pixel_error': 0.0,
                 'snr_threshold': 0.0,
                 'false_alarm_rate': 0.0,
@@ -118,5 +118,5 @@ def test_object_in_fov_with_padding():
         'dec_obs': 0.0,
     }]
 
-    obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0)
+    obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0, 0.0, 0.0)
     assert len(obs) == 1

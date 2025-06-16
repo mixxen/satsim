@@ -9,7 +9,7 @@ from tests.test_satsim import _gen_name
 def test_analytical_observations():
     ssp = config.load_json('./tests/config_static.json')
     ssp['sim']['analytical_obs'] = True
-    ssp['fpa']['observation'] = {
+    ssp['fpa']['detection'] = {
         'snr_threshold': 0.0,
         'pixel_error': 0.5,
         'false_alarm_rate': 1.0,
@@ -54,8 +54,8 @@ def test_analytical_observations():
     with open(os.path.join(obs_dir, files[0])) as f:
         data = json.load(f)
     assert isinstance(data, list)
-    assert len(data) >= ssp['fpa']['observation']['max_false']
-    assert len(data) <= ssp['fpa']['observation']['max_false'] + 1
+    assert len(data) >= ssp['fpa']['detection']['max_false']
+    assert len(data) <= ssp['fpa']['detection']['max_false'] + 1
     assert 'snrEst' in data[0]
     assert '+00:00' not in data[0]['obTime']
     assert isinstance(data[0]['senlat'], float)
@@ -65,7 +65,7 @@ def test_analytical_observations():
 def test_analytical_observations_threshold():
     ssp = config.load_json('./tests/config_static.json')
     ssp['sim']['analytical_obs'] = True
-    ssp['fpa']['observation'] = {
+    ssp['fpa']['detection'] = {
         'snr_threshold': 1e6,
         'pixel_error': 0.0,
         'false_alarm_rate': 1.0,
@@ -108,7 +108,7 @@ def test_analytical_observations_threshold():
     with open(os.path.join(obs_dir, files[0])) as f:
         data = json.load(f)
 
-    assert len(data) == ssp['fpa']['observation']['max_false']
+    assert len(data) == ssp['fpa']['detection']['max_false']
 
 
 def test_truth_annotation_ra_dec():
@@ -162,7 +162,7 @@ def test_analytical_obs_mode_none():
     ssp = config.load_json('./tests/config_static.json')
     ssp['sim']['analytical_obs'] = True
     ssp['sim']['mode'] = 'none'
-    ssp['fpa']['observation'] = {
+    ssp['fpa']['detection'] = {
         'snr_threshold': 0.0,
         'pixel_error': 0.0,
         'false_alarm_rate': 0.0,
