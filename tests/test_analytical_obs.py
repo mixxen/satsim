@@ -205,3 +205,6 @@ def test_analytical_obs_mode_none():
     with open(os.path.join(obs_dir, files[0])) as f:
         data = json.load(f)
     assert len(data) == 1
+    anno_dir = os.path.join(dirname, 'Annotations')
+    anno_files = [f for f in os.listdir(anno_dir) if f.endswith('.json')]
+    assert len(anno_files) == 1

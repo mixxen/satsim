@@ -33,7 +33,7 @@ from satsim.geometry.astrometric import create_topocentric, gen_track, get_los, 
 from satsim.geometry.photometric import model_to_mv
 from satsim.geometry.twobody import create_twobody
 from satsim.geometry.observation import create_observation
-from satsim.io.satnet import write_frame, set_frame_annotation, init_annotation
+from satsim.io.satnet import write_frame, write_annotation, set_frame_annotation, init_annotation
 from satsim.io.image import save_apng
 from satsim.io.czml import save_czml
 from satsim.util import tic, toc, MultithreadedTaskQueue, configure_eager, configure_single_gpu, merge_dicts
@@ -190,11 +190,37 @@ def gen_images(ssp, eager=True, output_dir='./', sample_num=0, output_debug=Fals
 
             logger.debug('Finished frame {} of {} in {} sec.'.format(frame_num + 1, num_frames, toc('gen_frame', frame_num)))
         else:
-            if queue is not None:
-                def f():
-                    return None
-                queue.task(f, {}, tag=dir_name)
-            logger.debug('Render mode off. Skipping frame generation.')
+            if ssp['sim'].get('analytical_obs', False):
+                meta_data = set_frame_annotation(
+                    meta_data,
+                    frame_num,
+                    h_fpa_os,
+                    w_fpa_os,
+                    obs_os_pix,
+                    [20 * s_osf, 20 * s_osf],
+                    snr=None,
+                    star_os_pix=None,
+                    metadata=astrometrics,
+                )
+                if queue is not None:
+                    queue.task(
+                        write_annotation,
+                        {
+                            'dir_name': dir_name,
+                            'sat_name': set_name,
+                            'meta_data': copy.deepcopy(meta_data),
+                            'frame_num': frame_num,
+                            'ssp': ssp_orig,
+                            'save_pickle': ssp['sim']['save_pickle'],
+                        },
+                        tag=dir_name,
+                    )
+            else:
+                if queue is not None:
+                    def f():
+                        return None
+                    queue.task(f, {}, tag=dir_name)
+                logger.debug('Render mode off. Skipping frame generation.')
 
     # write movie
     def wait_and_run():
@@ -671,7 +697,7 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                     )
                     analytical.save(output_dir, frame_num, obs_list)
                 if with_meta:
-                    yield None, frame_num, astrometrics.copy(), None, None, None, None, None, None, None, obs_cache, None, None, None
+                    yield None, frame_num, astrometrics.copy(), obs_os_pix, None, None, None, None, None, None, obs_cache, None, None, None
                 else:
                     yield None
                 continue
