@@ -1,0 +1,115 @@
+from __future__ import division, print_function, absolute_import
+
+import math
+import numpy as np
+
+
+def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
+    """Generate analytical observations for a frame using precomputed RA/Dec.
+
+    Args:
+        ssp: `dict`, SatSim configuration parameters.
+        obs_os_pix: `list`, list of detected observations in pixel space. Each
+            entry must contain the keys ``ra`` and ``dec`` giving the
+            mid-exposure position of the object.
+        astrometrics: `dict`, frame astrometric parameters.
+        bg_level: `float`, background noise level per pixel.
+        rn: `float`, read noise standard deviation in photo-electrons.
+
+    Notes:
+        ``pixel_error`` is interpreted as the standard deviation of the
+        positional error in pixel units. The error is applied isotropically in
+        the focal plane so that the per-axis standard deviation is
+        ``pixel_error / sqrt(2)``.
+
+    Returns:
+        `list` of observations in the JSON output format.
+    """
+    obs_cfg = ssp['fpa'].get('observation', {})
+    pixel_error = obs_cfg.get('pixel_error', 0.0)
+    snr_threshold = obs_cfg.get('snr_threshold', 0.0)
+    false_alarm_rate = obs_cfg.get('false_alarm_rate', 0.0)
+    max_false = int(obs_cfg.get('max_false', 10))
+
+    height = ssp['fpa'].get('crop', {}).get('height', ssp['fpa']['height'])
+    width = ssp['fpa'].get('crop', {}).get('width', ssp['fpa']['width'])
+
+    y_ifov = astrometrics.get('y_ifov',
+                              ssp['fpa']['y_fov'] / ssp['fpa']['height'])
+    x_ifov = astrometrics.get('x_ifov',
+                              ssp['fpa']['x_fov'] / ssp['fpa']['width'])
+
+    s_osf = ssp['sim'].get('spacial_osf', 1)
+    eod = 1.0
+    if isinstance(ssp['fpa'].get('psf'), dict) and 'eod' in ssp['fpa']['psf']:
+        eod = ssp['fpa']['psf']['eod']
+
+    obs_list = []
+
+    # convert radial pixel error to per-axis standard deviation
+    axis_error = pixel_error / math.sqrt(2.0) if pixel_error else 0.0
+
+    for ob in obs_os_pix:
+        if 'ra' not in ob or 'dec' not in ob:
+            continue
+
+        rr = np.asarray(ob['rr'], dtype=np.int32)
+        cc = np.asarray(ob['cc'], dtype=np.int32)
+        pp = np.asarray(ob['pp'], dtype=float)
+
+        # bin oversampled pixels into real pixel space
+        r_real = rr // s_osf
+        c_real = cc // s_osf
+        bins = {}
+        for r_pix, c_pix, val in zip(r_real, c_real, pp):
+            bins[(r_pix, c_pix)] = bins.get((r_pix, c_pix), 0.0) + val
+
+        if not bins:
+            continue
+
+        peak_signal = max(bins.values()) * eod
+        snr = float(peak_signal / math.sqrt(peak_signal + bg_level + rn * rn))
+        if snr < snr_threshold:
+            continue
+
+        ra_true = ob['ra']
+        dec_true = ob['dec']
+        ra_m = ra_true + np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_true))
+        dec_m = dec_true + np.random.normal(scale=axis_error * y_ifov)
+
+        obs_list.append({
+            'obTime': astrometrics['time'].isoformat() + 'Z',
+            'ra': float(ra_m),
+            'declination': float(dec_m),
+            'senlat': astrometrics.get('lat', 0),
+            'senlon': astrometrics.get('lon', 0),
+            'senalt': astrometrics.get('alt', 0),
+            'expDuration': float(ssp['fpa']['time']['exposure']),
+            'createdBy': 'satsim',
+            'type': 'OPTICAL'
+        })
+
+    center_ra = astrometrics.get('ra', 0.0)
+    center_dec = astrometrics.get('dec', 0.0)
+    count = 0
+    while count < max_false and np.random.random() < false_alarm_rate:
+        c_pix = np.random.uniform(-width / 2.0, width / 2.0)
+        r_pix = np.random.uniform(-height / 2.0, height / 2.0)
+        ra_m = center_ra + c_pix * x_ifov / math.cos(math.radians(center_dec))
+        dec_m = center_dec + r_pix * y_ifov
+        ra_m += np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_m))
+        dec_m += np.random.normal(scale=axis_error * y_ifov)
+        obs_list.append({
+            'obTime': astrometrics['time'].isoformat() + 'Z',
+            'ra': float(ra_m),
+            'declination': float(dec_m),
+            'senlat': astrometrics.get('lat', 0),
+            'senlon': astrometrics.get('lon', 0),
+            'senalt': astrometrics.get('alt', 0),
+            'expDuration': float(ssp['fpa']['time']['exposure']),
+            'createdBy': 'satsim',
+            'type': 'OPTICAL'
+        })
+        count += 1
+
+    return obs_list

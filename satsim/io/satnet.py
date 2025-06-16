@@ -101,6 +101,12 @@ def set_frame_annotation(data,frame_num,height,width,obs,box_size=None,box_pad=0
 
         annotation['pixels'] = opix
         annotation['snr'] = osnr
+        if 'ra' in o and 'dec' in o:
+            annotation['ra'] = _cast_to_float(o['ra'])
+            annotation['dec'] = _cast_to_float(o['dec'])
+        if 'ra_true' in o and 'dec_true' in o:
+            annotation['ra_true'] = _cast_to_float(o['ra_true'])
+            annotation['dec_true'] = _cast_to_float(o['dec_true'])
         objs.append(annotation)
 
     if star_os_pix is not None:

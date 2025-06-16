@@ -1,0 +1,136 @@
+import os
+import json
+import copy
+from satsim import config, gen_images
+from satsim.util import MultithreadedTaskQueue
+from tests.test_satsim import _gen_name
+
+
+def test_analytical_observations():
+    ssp = config.load_json('./tests/config_static.json')
+    ssp['sim']['analytical_obs'] = True
+    ssp['fpa']['observation'] = {
+        'snr_threshold': 0.0,
+        'pixel_error': 0.5,
+        'false_alarm_rate': 1.0,
+        'max_false': 2
+    }
+    ssp['fpa']['num_frames'] = 1
+    ssp['geometry']['site'] = {
+        "mode": "topo",
+        "lat": "20.746111 N",
+        "lon": "156.431667 W",
+        "alt": 0.0,
+        "gimbal": {"mode": "wcs", "rotation": 0},
+        "track": {"mode": "fixed", "az": 0, "el": 90}
+    }
+    ssp['geometry']['obs']['list'] = [
+        {
+            "mode": "line",
+            "origin": [0.5, 0.5],
+            "velocity": [0, 0],
+            "mv": 10
+        }
+    ]
+
+    queue = MultithreadedTaskQueue()
+    set_name = _gen_name('analytical')
+    dirname = gen_images(copy.deepcopy(ssp), eager=True, output_dir='./.images', output_debug=True, queue=queue, set_name=set_name)
+    queue.waitUntilEmpty()
+
+    assert os.path.isdir(dirname)
+    obs_dir = os.path.join(dirname, 'AnalyticalObservations')
+    files = [f for f in os.listdir(obs_dir) if f.endswith('.json')]
+    assert len(files) == 1
+    with open(os.path.join(obs_dir, files[0])) as f:
+        data = json.load(f)
+    assert isinstance(data, list)
+    assert len(data) >= ssp['fpa']['observation']['max_false']
+    assert len(data) <= ssp['fpa']['observation']['max_false'] + 1
+
+
+def test_analytical_observations_threshold():
+    ssp = config.load_json('./tests/config_static.json')
+    ssp['sim']['analytical_obs'] = True
+    ssp['fpa']['observation'] = {
+        'snr_threshold': 1e6,
+        'pixel_error': 0.0,
+        'false_alarm_rate': 1.0,
+        'max_false': 3
+    }
+    ssp['fpa']['num_frames'] = 1
+    ssp['geometry']['site'] = {
+        "mode": "topo",
+        "lat": "20.746111 N",
+        "lon": "156.431667 W",
+        "alt": 0.0,
+        "gimbal": {"mode": "wcs", "rotation": 0},
+        "track": {"mode": "fixed", "az": 0, "el": 90}
+    }
+    ssp['geometry']['obs']['list'] = [
+        {
+            "mode": "line",
+            "origin": [0.5, 0.5],
+            "velocity": [0, 0],
+            "mv": 10
+        }
+    ]
+
+    queue = MultithreadedTaskQueue()
+    set_name = _gen_name('analytical2')
+    dirname = gen_images(copy.deepcopy(ssp), eager=True, output_dir='./.images', output_debug=True, queue=queue, set_name=set_name)
+    queue.waitUntilEmpty()
+
+    obs_dir = os.path.join(dirname, 'AnalyticalObservations')
+    files = [f for f in os.listdir(obs_dir) if f.endswith('.json')]
+    with open(os.path.join(obs_dir, files[0])) as f:
+        data = json.load(f)
+
+    assert len(data) == ssp['fpa']['observation']['max_false']
+
+
+def test_truth_annotation_ra_dec():
+    ssp = config.load_json('./tests/config_static.json')
+    ssp['fpa']['num_frames'] = 1
+    ssp['geometry']['site'] = {
+        "mode": "topo",
+        "lat": "20.746111 N",
+        "lon": "156.431667 W",
+        "alt": 0.0,
+        "gimbal": {"mode": "wcs", "rotation": 0},
+        "track": {"mode": "fixed", "az": 0, "el": 90}
+    }
+    from satsim.geometry.astrometric import create_topocentric, get_los_azel
+    from satsim import time
+
+    ts = time.utc(2020, 1, 1, 0, 0, 0)
+    topo = create_topocentric("20.746111 N", "156.431667 W", 0.0)
+    ra_c, dec_c, _, _, _, _ = get_los_azel(topo, 0, 90, ts,
+                                           deflection=False, aberration=False)
+
+    ssp['geometry']['obs']['list'] = [
+        {
+            "mode": "observation",
+            "ra": ra_c,
+            "dec": dec_c,
+            "time": [2020, 1, 1, 0, 0, 0],
+            "range": 1000.0,
+            "mv": 10
+        }
+    ]
+
+    queue = MultithreadedTaskQueue()
+    set_name = _gen_name('truthra')
+    dirname = gen_images(copy.deepcopy(ssp), eager=True, output_dir='./.images',
+                         output_debug=True, queue=queue, set_name=set_name)
+    queue.waitUntilEmpty()
+
+    anno_dir = os.path.join(dirname, 'Annotations')
+    files = [f for f in os.listdir(anno_dir) if f.endswith('.json')]
+    with open(os.path.join(anno_dir, files[0])) as f:
+        data = json.load(f)
+
+    found = any('ra_true' in ob and 'ra' in ob
+                for ob in data['data']['objects']
+                if ob['class_name'] == 'Satellite')
+    assert found
