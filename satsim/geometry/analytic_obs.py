@@ -81,9 +81,10 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
         dec_m = dec_true + np.random.normal(scale=axis_error * y_ifov)
 
         obs_list.append({
-            'obTime': astrometrics['time'].isoformat() + 'Z',
+            'obTime': astrometrics['time'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'ra': float(ra_m),
             'declination': float(dec_m),
+            'snrEst': float(snr),
             'senlat': astrometrics.get('lat', 0),
             'senlon': astrometrics.get('lon', 0),
             'senalt': astrometrics.get('alt', 0),
@@ -103,9 +104,10 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
         ra_m += np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_m))
         dec_m += np.random.normal(scale=axis_error * y_ifov)
         obs_list.append({
-            'obTime': astrometrics['time'].isoformat() + 'Z',
+            'obTime': astrometrics['time'].strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'ra': float(ra_m),
             'declination': float(dec_m),
+            'snrEst': 0.0,
             'senlat': astrometrics.get('lat', 0),
             'senlon': astrometrics.get('lon', 0),
             'senalt': astrometrics.get('alt', 0),

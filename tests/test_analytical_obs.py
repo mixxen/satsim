@@ -47,6 +47,8 @@ def test_analytical_observations():
     assert isinstance(data, list)
     assert len(data) >= ssp['fpa']['observation']['max_false']
     assert len(data) <= ssp['fpa']['observation']['max_false'] + 1
+    assert 'snrEst' in data[0]
+    assert '+00:00' not in data[0]['obTime']
 
 
 def test_analytical_observations_threshold():
