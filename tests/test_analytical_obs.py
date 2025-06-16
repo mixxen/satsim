@@ -130,7 +130,7 @@ def test_truth_annotation_ra_dec():
     with open(os.path.join(anno_dir, files[0])) as f:
         data = json.load(f)
 
-    found = any('ra_true' in ob and 'ra' in ob
+    found = any('ra_true' in ob and 'ra_obs' in ob
                 for ob in data['data']['objects']
                 if ob['class_name'] == 'Satellite')
     assert found

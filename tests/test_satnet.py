@@ -42,8 +42,8 @@ def test_annotation():
     assert(c['y_center'] == (0.55 + 0.75) / 2.)
     assert(c['x_center'] == (0.525 + 0.575) / 2.)
 
-    assert c['ra'] == 1.0
-    assert c['dec'] == -1.0
+    assert c['ra_obs'] == 1.0
+    assert c['dec_obs'] == -1.0
     assert c['ra_true'] == 0.5
     assert c['dec_true'] == -0.5
 
