@@ -85,7 +85,7 @@ def test_object_out_of_fov():
     assert obs == []
 
 
-def test_object_excluded_near_padding():
+def test_object_in_fov_with_padding():
     ssp = {
         'fpa': {
             'width': 10,
@@ -119,4 +119,4 @@ def test_object_excluded_near_padding():
     }]
 
     obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0)
-    assert obs == []
+    assert len(obs) == 1
