@@ -50,7 +50,7 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
     axis_error = pixel_error / math.sqrt(2.0) if pixel_error else 0.0
 
     for ob in obs_os_pix:
-        if 'ra' not in ob or 'dec' not in ob:
+        if 'ra_obs' not in ob or 'dec_obs' not in ob:
             continue
 
         rr = np.asarray(ob['rr'], dtype=np.int32)
@@ -74,8 +74,8 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
         if snr < snr_threshold:
             continue
 
-        ra_true = ob['ra']
-        dec_true = ob['dec']
+        ra_true = ob['ra_obs']
+        dec_true = ob['dec_obs']
         ra_m = ra_true + np.random.normal(scale=axis_error * x_ifov) / math.cos(math.radians(dec_true))
         dec_m = dec_true + np.random.normal(scale=axis_error * y_ifov)
 

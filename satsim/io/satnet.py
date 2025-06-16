@@ -101,9 +101,9 @@ def set_frame_annotation(data,frame_num,height,width,obs,box_size=None,box_pad=0
 
         annotation['pixels'] = opix
         annotation['snr'] = osnr
-        if 'ra' in o and 'dec' in o:
-            annotation['ra_obs'] = _cast_to_float(o['ra'])
-            annotation['dec_obs'] = _cast_to_float(o['dec'])
+        if 'ra_obs' in o and 'dec_obs' in o:
+            annotation['ra_obs'] = _cast_to_float(o['ra_obs'])
+            annotation['dec_obs'] = _cast_to_float(o['dec_obs'])
         if 'ra_true' in o and 'dec_true' in o:
             annotation['ra_true'] = _cast_to_float(o['ra_true'])
             annotation['dec_true'] = _cast_to_float(o['dec_true'])

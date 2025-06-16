@@ -32,8 +32,8 @@ def test_pixel_error_distribution():
         'rr': [0],
         'cc': [0],
         'pp': [100],
-        'ra': 0.0,
-        'dec': 0.0,
+        'ra_obs': 0.0,
+        'dec_obs': 0.0,
     }]
 
     deltas = []
@@ -77,8 +77,8 @@ def test_object_out_of_fov():
         'rr': [-1],
         'cc': [-1],
         'pp': [100],
-        'ra': 0.0,
-        'dec': 0.0,
+        'ra_obs': 0.0,
+        'dec_obs': 0.0,
     }]
 
     obs = analytic_obs.generate(ssp, obs_os_pix, astrometrics, 0.0, 0.0)

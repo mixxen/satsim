@@ -1161,8 +1161,8 @@ def _gen_objects(ssp, render_mode,
             'object_id': object_id,
         }
         if ra_mid is not None and dec_mid is not None:
-            entry['ra'] = ra_mid
-            entry['dec'] = dec_mid
+            entry['ra_obs'] = ra_mid
+            entry['dec_obs'] = dec_mid
             entry['ra_true'] = ra_true
             entry['dec_true'] = dec_true
 

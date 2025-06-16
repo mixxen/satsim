@@ -20,8 +20,8 @@ def test_annotation():
         'cc': occ,
         'mv': 15,
         'pe': 100,
-        'ra': 1.0,
-        'dec': -1.0,
+        'ra_obs': 1.0,
+        'dec_obs': -1.0,
         'ra_true': 0.5,
         'dec_true': -0.5,
     }
