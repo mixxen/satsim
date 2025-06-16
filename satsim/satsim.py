@@ -649,8 +649,27 @@ def image_generator(ssp, output_dir='.', output_debug=False, dir_debug='./Debug'
                                                                                                      y_ifov, x_ifov,
                                                                                                      observer, track, star_rot, astrometrics['track_mode'], track_az, track_el)
 
-            # if image rendering is disabled, then return
+            # if image rendering is disabled, optionally generate analytical observations and return
             if ssp['sim']['mode'] == 'none':
+                if ssp['sim'].get('analytical_obs', False):
+                    if 'crop' in ssp['fpa']:
+                        cp = ssp['fpa']['crop']
+                        for opp in obs_os_pix:
+                            opp['rr'] = opp['rr'] - cp['height_offset'] * s_osf
+                            opp['cc'] = opp['cc'] - cp['width_offset'] * s_osf
+                            opp['rrr'] = opp['rrr'] - cp['height_offset']
+                            opp['rcc'] = opp['rcc'] - cp['width_offset']
+
+                    bg_val = float(tf.reduce_mean(bg_tf).numpy()) if hasattr(bg_tf, 'numpy') else float(np.mean(bg_tf))
+                    rn_val = float(tf.reduce_mean(rn_tf).numpy()) if hasattr(rn_tf, 'numpy') else float(np.mean(rn_tf))
+                    obs_list = analytic_obs.generate(
+                        ssp,
+                        obs_os_pix,
+                        astrometrics,
+                        bg_val,
+                        rn_val,
+                    )
+                    analytical.save(output_dir, frame_num, obs_list)
                 if with_meta:
                     yield None, frame_num, astrometrics.copy(), None, None, None, None, None, None, None, obs_cache, None, None, None
                 else:
@@ -1028,10 +1047,6 @@ def _gen_objects(ssp, render_mode,
                 else:
                     ts_epoch = time.utc_from_list_or_scalar(o['epoch'], default_t=tt)
                     obs_cache[i] = [create_twobody(np.array(o['position']) * u.km, np.array(o['velocity']) * u.km / u.s, ts_epoch)]
-
-            # skip rest if not rendering images
-            if ssp['sim']['mode'] == 'none':
-                continue
 
             o_offset = [0.0, 0.0]
             if 'offset' in o:

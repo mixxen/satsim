@@ -24,11 +24,20 @@ def test_analytical_observations():
         "gimbal": {"mode": "wcs", "rotation": 0},
         "track": {"mode": "fixed", "az": 0, "el": 90}
     }
+    from satsim.geometry.astrometric import create_topocentric, get_los_azel
+    from satsim import time
+    topo = create_topocentric("20.746111 N", "156.431667 W", 0.0)
+    ts = time.utc(2020, 1, 1, 0, 0, 0)
+    ra_c, dec_c, _, _, _, _ = get_los_azel(topo, 0, 90, ts,
+                                           deflection=False, aberration=False)
+
     ssp['geometry']['obs']['list'] = [
         {
-            "mode": "line",
-            "origin": [0.5, 0.5],
-            "velocity": [0, 0],
+            "mode": "observation",
+            "ra": ra_c,
+            "dec": dec_c,
+            "time": [2020, 1, 1, 0, 0, 0],
+            "range": 1000.0,
             "mv": 10
         }
     ]
@@ -69,11 +78,20 @@ def test_analytical_observations_threshold():
         "gimbal": {"mode": "wcs", "rotation": 0},
         "track": {"mode": "fixed", "az": 0, "el": 90}
     }
+    from satsim.geometry.astrometric import create_topocentric, get_los_azel
+    from satsim import time
+    topo = create_topocentric("20.746111 N", "156.431667 W", 0.0)
+    ts = time.utc(2020, 1, 1, 0, 0, 0)
+    ra_c, dec_c, _, _, _, _ = get_los_azel(topo, 0, 90, ts,
+                                           deflection=False, aberration=False)
+
     ssp['geometry']['obs']['list'] = [
         {
-            "mode": "line",
-            "origin": [0.5, 0.5],
-            "velocity": [0, 0],
+            "mode": "observation",
+            "ra": ra_c,
+            "dec": dec_c,
+            "time": [2020, 1, 1, 0, 0, 0],
+            "range": 1000.0,
             "mv": 10
         }
     ]
@@ -136,3 +154,54 @@ def test_truth_annotation_ra_dec():
                 for ob in data['data']['objects']
                 if ob['class_name'] == 'Satellite')
     assert found
+
+
+def test_analytical_obs_mode_none():
+    ssp = config.load_json('./tests/config_static.json')
+    ssp['sim']['analytical_obs'] = True
+    ssp['sim']['mode'] = 'none'
+    ssp['fpa']['observation'] = {
+        'snr_threshold': 0.0,
+        'pixel_error': 0.0,
+        'false_alarm_rate': 0.0,
+        'max_false': 0
+    }
+    ssp['fpa']['num_frames'] = 1
+    ssp['geometry']['site'] = {
+        "mode": "topo",
+        "lat": "20.746111 N",
+        "lon": "156.431667 W",
+        "alt": 0.0,
+        "gimbal": {"mode": "wcs", "rotation": 0},
+        "track": {"mode": "fixed", "az": 0, "el": 90}
+    }
+    from satsim.geometry.astrometric import create_topocentric, get_los_azel
+    from satsim import time
+    topo = create_topocentric("20.746111 N", "156.431667 W", 0.0)
+    ts = time.utc(2020, 1, 1, 0, 0, 0)
+    ra_c, dec_c, _, _, _, _ = get_los_azel(topo, 0, 90, ts,
+                                           deflection=False, aberration=False)
+
+    ssp['geometry']['obs']['list'] = [
+        {
+            "mode": "observation",
+            "ra": ra_c,
+            "dec": dec_c,
+            "time": [2020, 1, 1, 0, 0, 0],
+            "range": 1000.0,
+            "mv": 10
+        }
+    ]
+
+    queue = MultithreadedTaskQueue()
+    set_name = _gen_name('analytical_none')
+    dirname = gen_images(copy.deepcopy(ssp), eager=True, output_dir='./.images',
+                         output_debug=True, queue=queue, set_name=set_name)
+    queue.waitUntilEmpty()
+
+    obs_dir = os.path.join(dirname, 'AnalyticalObservations')
+    files = [f for f in os.listdir(obs_dir) if f.endswith('.json')]
+    assert len(files) == 1
+    with open(os.path.join(obs_dir, files[0])) as f:
+        data = json.load(f)
+    assert len(data) == 1
