@@ -57,12 +57,14 @@ def generate(ssp, obs_os_pix, astrometrics, bg_level, rn):
         cc = np.asarray(ob['cc'], dtype=np.int32)
         pp = np.asarray(ob['pp'], dtype=float)
 
-        # bin oversampled pixels into real pixel space
+        # bin oversampled pixels into real pixel space and ignore any pixels
+        # that fall outside the cropped image after pad removal
         r_real = rr // s_osf
         c_real = cc // s_osf
         bins = {}
         for r_pix, c_pix, val in zip(r_real, c_real, pp):
-            bins[(r_pix, c_pix)] = bins.get((r_pix, c_pix), 0.0) + val
+            if 0 <= r_pix < height and 0 <= c_pix < width:
+                bins[(r_pix, c_pix)] = bins.get((r_pix, c_pix), 0.0) + val
 
         if not bins:
             continue
