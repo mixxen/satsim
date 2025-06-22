@@ -63,3 +63,20 @@ def test_read_noise():
 
     np.testing.assert_approx_equal(stat.mean, val, significant=2)
     np.testing.assert_approx_equal(stat.variance, rn * rn + en * en, significant=2)
+
+
+def test_read_noise_diff_vals():
+    sx = 100
+    sy = 100
+
+    val = 1000
+    a = tf.ones([sx, sy]) * val
+
+    rn = 10
+    en = 3
+    b, _ = add_read_noise(a, rn, en)
+
+    stat = describe(b.numpy().flatten())
+
+    np.testing.assert_approx_equal(stat.mean, val, significant=2)
+    np.testing.assert_approx_equal(stat.variance, rn * rn + en * en, significant=2)
